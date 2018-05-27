@@ -1,12 +1,21 @@
 package poi.giftiacoder.civil_mod.algo;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Random;
 
 public class PerlinNoise {
 	
-	public static float perlinNoise(float x, float z, float persist, float octave) {
-		
+	private float persist;
+	private int octave;
+	
+	private Hashs hash;
+	
+	public PerlinNoise(float persist, int octave, long seed) {
+		this.persist = persist;
+		this.octave = octave;
+		this.hash = new Hashs(new Random(seed));
+	}
+	
+	public float perlinNoise(float x, float z) {
 		float v = 0.0F;
 		
 		float f = 1.0F;
@@ -14,7 +23,7 @@ public class PerlinNoise {
 		float t = 0.0F;
 		
 		for (int i = 0; i < octave; ++i) {
-			v += perlinNoise(x * f, z * f) * a;
+			v += perlinNoiseSingle(x * f, z * f) * a;
 			
 			t += a;
 			a *= persist;
@@ -25,7 +34,7 @@ public class PerlinNoise {
 		return v / t;
 	}
 	
-	public static float perlinNoise(float x, float z) {
+	private float perlinNoiseSingle(float x, float z) {
 		int ix = (int)x, iz = (int)z;
 		if (x < 0) --ix;
 		if (z < 0) --iz;
@@ -36,15 +45,16 @@ public class PerlinNoise {
 		float a2 = affect(x, z, ix + 1, iz);
 		float a3 = affect(x, z, ix, iz + 1);
 		float a4 = affect(x, z, ix + 1, iz + 1);
+		//System.out.printf("perlin affect: %f, %f, %f, %f\n", a1, a2, a3, a4);
 		
 		float a = interpolate(interpolate(a1, a2, fx), interpolate(a3, a4, fx), fz);
 		return a;
 	}
 	
 	// 6*(x^5)-15*(x^4)+10*(x^3)
-	private static float interpolate(float a, float b, float f) {
+	private float interpolate(float a, float b, float f) {
 		//double ft = (double) ((1.0D - Math.cos(f * Math.PI)) * 0.5);
-		//return b * ft + a * (1.0D - ft);
+		//return (float) (b * ft + a * (1.0D - ft));
 		
 		//return f * b + (1.0D - f) * a;
 		
@@ -55,20 +65,18 @@ public class PerlinNoise {
 		return b * fp + (1.0F - fp) * a;
 	}
 	
-	private static float affect(float x, float z, int ox, int oz) {
+	private float affect(float x, float z, int ox, int oz) {
 		float dx = (x - (float)ox), dz = (z - (float)oz);
 		
-		float vx = noise((int)ox, (int)oz * 17921), vz = noise((int)ox * 30577, (int)oz);
+		float vx = noise(ox, oz * 17921), vz = noise(ox * 30577, oz);
 		
-		float a = (dx) * (vx) + (dz) * (vz);
+		float a = (dx * vx) + (dz * vz);
 		return (a + 2.0F) / 4.0F;
 	}
 	
-	private static float noise(int x, int z) {
-		int n = (x * 5) ^ (z * 11) ^ (x * 23) ^ (z * 31);//x + z * 71;
-		n = (n * 757 + 12011) * 4007;
-		int l = 0x7FFFFFFF & n;
-		double d = (double)l / 1073741823.5D;
-		return (float)(d - 1.0F);
+	private float noise(int x, int z) {
+		double d = (double)hash.hash(x, z) / (double)Integer.MAX_VALUE;
+		return (float)((d * 2.0D) - 1.0D);
 	}
+	
 }

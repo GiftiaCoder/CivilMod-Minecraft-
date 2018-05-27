@@ -17,6 +17,10 @@ public interface R  {
 	
 	public interface TileEntities {
 		public static final String ID_CHUNK_MASTER = R.MODID + ":chunk_master";
+		
+		public static final String ID_CHUNK_DATA = R.MODID + ":chunk_data";
+		public static final String ID_CHUNK_PLAIN = R.MODID + ":chunk_plain";
+		public static final String ID_CHUNK_CASTLE = R.MODID + ":chunk_castle";
 	}
 	
 	public interface Dimensions {
@@ -25,7 +29,7 @@ public interface R  {
 	
 	public static enum EnumModBlocks {
 		
-		CHUNK_MASTER("chunk_master");
+		CHUNK_DATA("chunk_data");
 		
 		private String unlocalizedName;
 		private String registryName;

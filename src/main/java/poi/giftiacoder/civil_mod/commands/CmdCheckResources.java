@@ -1,6 +1,9 @@
 package poi.giftiacoder.civil_mod.commands;
 
+import java.io.IOException;
 import java.util.List;
+
+import javax.annotation.Resource;
 
 import com.google.common.collect.Lists;
 
@@ -12,21 +15,23 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 import poi.giftiacoder.civil_mod.R;
+import poi.giftiacoder.civil_mod.RegistryHandler;
+import poi.giftiacoder.civil_mod.civilmaterial.Resources;
 import poi.giftiacoder.civil_mod.tileentity.TileEntityChunkCastle;
 import poi.giftiacoder.civil_mod.tileentity.TileEntityChunkData;
 
-public class CmdCheckChunkMaster extends CommandBase {
-
-	private static final List<String> ALIASES = Lists.newArrayList(R.MODID, "chkcm");
+public class CmdCheckResources extends CommandBase {
+	
+	private static final List<String> ALIASES = Lists.newArrayList(R.MODID, "resources");
 	
 	@Override
 	public String getName() {
-		return "chkcm";
+		return "resources";
 	}
 
 	@Override
 	public String getUsage(ICommandSender sender) {
-		return "chkcm";
+		return "resources";
 	}
 	
 	@Override
@@ -41,22 +46,25 @@ public class CmdCheckChunkMaster extends CommandBase {
 	
 	@Override
 	public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
-		BlockPos pos = sender.getPosition();
+		try {
+			RegistryHandler.writeResourceData();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		sender.sendMessage(new TextComponentString("num: " + RegistryHandler.resourceDataList[0].size()));
+		/*BlockPos pos = sender.getPosition();
 		TileEntityChunkData chunkData = TileEntityChunkData.getChunkData(sender.getEntityWorld(), pos.getX() >> 4, pos.getZ() >> 4);
 		
 		if (chunkData != null) {
-			sender.sendMessage(new TextComponentString(
-					String.format("chunk class:%s%s%s, chunk type:%s%s%s, productivity:%s%f%s, sum productivity:%s%f%s, coord:%s(%d, %d)%s\n"
-							, TextFormatting.RED, chunkData.getClass(), TextFormatting.WHITE 
-							, TextFormatting.RED, chunkData.chunkType, TextFormatting.WHITE 
-							, TextFormatting.RED, chunkData.productivity, TextFormatting.WHITE 
-							, TextFormatting.RED, chunkData instanceof TileEntityChunkCastle ? ((TileEntityChunkCastle)chunkData).sumProductivity : 0.0F, TextFormatting.WHITE 
-							, TextFormatting.RED, chunkData.chunkX, chunkData.chunkZ, TextFormatting.WHITE)));
+			String msg = TextFormatting.RED + "----------------------------" + TextFormatting.WHITE + "\n";;
+			for (int i = 0; i < chunkData.resourcesBasicAmount.length; ++i) {
+				msg += (Resources.values()[i].name().toLowerCase() + ": " + TextFormatting.GREEN + chunkData.resourcesBasicAmount[i] + TextFormatting.WHITE + "\t");
+			}
+			sender.sendMessage(new TextComponentString(msg));
 		}
 		else {
 			sender.sendMessage(new TextComponentString(String.format("%sCannot get chunk master, block state: %s, pos: %s, tileentity: %s", 
 					TextFormatting.RED, sender.getEntityWorld().getBlockState(pos), pos, sender.getEntityWorld().getTileEntity(pos))));
-		}
+		}*/
 	}
-
 }

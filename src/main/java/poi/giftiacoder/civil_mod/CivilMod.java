@@ -8,7 +8,9 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
+import net.minecraftforge.fml.relauncher.Side;
 import poi.giftiacoder.civil_mod.commands.CmdCheckChunkMaster;
+import poi.giftiacoder.civil_mod.commands.CmdCheckResources;
 import poi.giftiacoder.civil_mod.commands.CmdDimensionTeleport;
 import poi.giftiacoder.civil_mod.eventhandler.RecordBuildingMacro;
 import poi.giftiacoder.civil_mod.proxy.CommonProxy;
@@ -28,8 +30,9 @@ public class CivilMod  {
 	}
 	
 	@EventHandler
-	public void init(FMLInitializationEvent event) {
+	public void init(FMLInitializationEvent event) throws Exception {
 		proxy.register();
+		
 		MinecraftForge.EVENT_BUS.register(new RecordBuildingMacro());
 	}
 	
@@ -42,5 +45,6 @@ public class CivilMod  {
 	public void serverInit(FMLServerStartingEvent event) {
 		event.registerServerCommand(new CmdDimensionTeleport());
 		event.registerServerCommand(new CmdCheckChunkMaster());
+		event.registerServerCommand(new CmdCheckResources());
 	}
 }
