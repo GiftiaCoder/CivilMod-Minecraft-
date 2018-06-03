@@ -46,10 +46,11 @@ public class CmdCheckChunkMaster extends CommandBase {
 		
 		if (chunkData != null) {
 			sender.sendMessage(new TextComponentString(
-					String.format("chunk class:%s%s%s, chunk type:%s%s%s, productivity:%s%f%s, sum productivity:%s%f%s, coord:%s(%d, %d)%s\n"
+					String.format("chunk class:%s%s%s, chunk type:%s%s%s, productivity:%s%f%s, demon pollution:%s%f%s, sum productivity:%s%f%s, coord:%s(%d, %d)%s\n"
 							, TextFormatting.RED, chunkData.getClass(), TextFormatting.WHITE 
 							, TextFormatting.RED, chunkData.chunkType, TextFormatting.WHITE 
 							, TextFormatting.RED, chunkData.productivity, TextFormatting.WHITE 
+							, TextFormatting.RED, chunkData.demonPollution, TextFormatting.WHITE
 							, TextFormatting.RED, chunkData instanceof TileEntityChunkCastle ? ((TileEntityChunkCastle)chunkData).sumProductivity : 0.0F, TextFormatting.WHITE 
 							, TextFormatting.RED, chunkData.chunkX, chunkData.chunkZ, TextFormatting.WHITE)));
 		}

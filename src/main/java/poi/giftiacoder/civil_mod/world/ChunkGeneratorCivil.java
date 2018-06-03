@@ -12,8 +12,10 @@ import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkPrimer;
 import net.minecraft.world.gen.IChunkGenerator;
 import poi.giftiacoder.civil_mod.algo.PerlinNoise;
+import poi.giftiacoder.civil_mod.algo.TinyPerlinNoise;
 import poi.giftiacoder.civil_mod.civilmaterial.Resources;
 import poi.giftiacoder.civil_mod.tileentity.TileEntityChunkData;
+import poi.giftiacoder.civil_mod.tileentity.TileEntityChunkPlain;
 import poi.giftiacoder.civil_mod.world.civil.DimensionCivil;
 
 public class ChunkGeneratorCivil implements IChunkGenerator {
@@ -22,10 +24,12 @@ public class ChunkGeneratorCivil implements IChunkGenerator {
 	
 	private World world;
 	private PerlinNoise noise;
+	private TinyPerlinNoise tinyNoise;
 	
 	public ChunkGeneratorCivil(World worldIn) {
 		this.world = worldIn;
 		this.noise = new PerlinNoise(0.5F, 4, worldIn.getSeed());
+		this.tinyNoise = new TinyPerlinNoise(world.getSeed() * 40283);
 		Resources.setSeed(worldIn.getSeed());
 	}
 	
@@ -37,6 +41,7 @@ public class ChunkGeneratorCivil implements IChunkGenerator {
 		
 		ChunkPrimer primer = new ChunkPrimer();
 		int lowHeightCount = 0, topHeightCount = 0;
+		int[][] heightMap = new int[16][16];
 		for (int i = 0; i < 16; ++i) {
 			for (int j = 0; j < 16; ++j) {
 				primer.setBlockState(i, 0, j, Blocks.BEDROCK.getDefaultState());
@@ -69,6 +74,8 @@ public class ChunkGeneratorCivil implements IChunkGenerator {
 				else if (height == DimensionCivil.CIVIL_WORLD_TOP_LEVEL) {
 					++topHeightCount;
 				}
+				
+				heightMap[i][j] = height;
 			}
 		}
 		TileEntityChunkData.perbindChunkDataWithChunkPrimer(primer);
@@ -76,7 +83,7 @@ public class ChunkGeneratorCivil implements IChunkGenerator {
 		Chunk chunk = new Chunk(this.world, primer, x, z);
 		
 		TileEntityChunkData chunkData = TileEntityChunkData.ChunkType.getChunkType(lowHeightCount, topHeightCount).createChunkData(
-				world, PRODUCTIVITY_ZERO_BOUND - chunkPriceWeight, x, z);
+				world, PRODUCTIVITY_ZERO_BOUND - chunkPriceWeight, x, z, heightMap);
 		chunkData.bindChunkDataWithChunk(chunk);
 		
 		chunk.generateSkylightMap();
@@ -84,7 +91,13 @@ public class ChunkGeneratorCivil implements IChunkGenerator {
 	}
 	
 	@Override
-	public void populate(int x, int z) {}
+	public void populate(int x, int z) {
+		TileEntityChunkData chunkData = TileEntityChunkData.getChunkData(world, x, z);
+		if (chunkData instanceof TileEntityChunkPlain) {
+			TileEntityChunkPlain chunkPlain = (TileEntityChunkPlain)chunkData;
+			// TODO
+		}
+	}
 	
 	@Override
 	public boolean generateStructures(Chunk chunkIn, int x, int z) { return false; }

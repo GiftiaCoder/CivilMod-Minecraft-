@@ -1,12 +1,13 @@
 package poi.giftiacoder.civil_mod.tileentity;
 
+import net.minecraft.entity.Entity;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.ChunkPrimer;
 import net.minecraft.world.chunk.Chunk.EnumCreateEntityType;
+import net.minecraft.world.chunk.ChunkPrimer;
 import poi.giftiacoder.civil_mod.ModBlocks;
 import poi.giftiacoder.civil_mod.building.ModBuildings;
 import poi.giftiacoder.civil_mod.civilmaterial.Resources;
@@ -18,8 +19,8 @@ public class TileEntityChunkData extends TileEntity {
 	public static enum ChunkType {
 		PLAIN {
 			@Override
-			public TileEntityChunkData createChunkData(World world, float productivity, int chunkX, int chunkZ) {
-				return new TileEntityChunkPlain(world, BuildingType.WASTELAND, productivity, chunkX, chunkZ);
+			public TileEntityChunkData createChunkData(World world, float productivity, int chunkX, int chunkZ, int[][] heightMap) {
+				return new TileEntityChunkPlain(world, BuildingType.WASTELAND, productivity, chunkX, chunkZ, heightMap);
 			}
 		}, MOUNTAIN, PLATEAU;
 		
@@ -33,8 +34,8 @@ public class TileEntityChunkData extends TileEntity {
 			return ChunkType.PLATEAU;
 		}
 		
-		public TileEntityChunkData createChunkData(World world, float productivity, int chunkX, int chunkZ) {
-			return new TileEntityChunkData(world, this, productivity, chunkX, chunkZ);
+		public TileEntityChunkData createChunkData(World world, float productivity, int chunkX, int chunkZ, int[][] heightMap) {
+			return new TileEntityChunkData(world, this, productivity, chunkX, chunkZ, heightMap);
 		}
 	};
 	
@@ -44,16 +45,22 @@ public class TileEntityChunkData extends TileEntity {
 	public int chunkX = Integer.MIN_VALUE, chunkZ = Integer.MIN_VALUE;
 	public float[] resourcesBasicAmount = new float[Resources.values().length];
 	
+	public int[][] heigthMap = new int[16][16];
+	
+	public float demonPollution = 0;
+	
 	private int productivityGreaterThanNeighbourCount = 0;
 	
 	public TileEntityChunkData() {}
 	
-	public TileEntityChunkData(World world, ChunkType chunkType, float productivity, int chunkX, int chunkZ) {
+	public TileEntityChunkData(World world, ChunkType chunkType, float productivity, int chunkX, int chunkZ, int[][] heightMap) {
 		
 		this.chunkType = chunkType;
 		this.productivity = productivity;
 		this.chunkX = chunkX;
 		this.chunkZ = chunkZ;
+		
+		this.heigthMap = heightMap;
 		
 		for (int i = 0; i < resourcesBasicAmount.length; ++i) {
 			resourcesBasicAmount[i] = Resources.values()[i].getWeight(chunkX, chunkZ);
@@ -66,22 +73,22 @@ public class TileEntityChunkData extends TileEntity {
 		TileEntityChunkData cd = null;
 		
 		cd = getChunkData(world, chunkX - 1, chunkZ);
-		if (cd != null && productivity > cd.productivity) {
+		if (cd != null && productivity >= cd.productivity) {
 			lowerList[n] = cd;
 			++n;
 		}
 		cd = getChunkData(world, chunkX + 1, chunkZ);
-		if (cd != null && productivity > cd.productivity) {
+		if (cd != null && productivity >= cd.productivity) {
 			lowerList[n] = cd;
 			++n;
 		}
 		cd = getChunkData(world, chunkX, chunkZ - 1);
-		if (cd != null && productivity > cd.productivity) {
+		if (cd != null && productivity >= cd.productivity) {
 			lowerList[n] = cd;
 			++n;
 		}
 		cd = getChunkData(world, chunkX, chunkZ + 1);
-		if (cd != null && productivity > cd.productivity) {
+		if (cd != null && productivity >= cd.productivity) {
 			lowerList[n] = cd;
 			++n;
 		}
@@ -199,6 +206,18 @@ public class TileEntityChunkData extends TileEntity {
 		
 		Resources.readFromNBT(this, nbt);
 		
+		if (nbt.hasKey("chunkHeightMap")) {
+			int[] hmap = nbt.getIntArray("chunkHeightMap");
+			for (int i = 0, k = 0; i < 16; ++i) {
+				for (int j = 0; j < 16; ++j, ++k) {
+					heigthMap[i][j] = hmap[k];
+				}
+			}
+		}
+		if (nbt.hasKey("demonPollution")) {
+			demonPollution = nbt.getFloat("demonPollution");
+		}
+		
 		if (nbt.hasKey("productivityGreaterThanNeighbourCount")) {
 			productivityGreaterThanNeighbourCount = nbt.getInteger("productivityGreaterThanNeighbourCount");
 		}
@@ -211,11 +230,24 @@ public class TileEntityChunkData extends TileEntity {
 		nbt.setInteger("chunkX", chunkX);
 		nbt.setInteger("chunkZ", chunkZ);
 		
+		int[] hmap = new int[16 * 16];
+		for (int i = 0, k = 0; i < 16; ++i) {
+			for (int j = 0; j < 16; ++j, ++k) {
+				hmap[k] = heigthMap[i][j];
+			}
+		}
+		nbt.setIntArray("chunkHeightMap", hmap);
+		nbt.setFloat("demonPollution", demonPollution);
+		
 		Resources.writeToNBT(this, nbt);
 		
 		nbt.setInteger("productivityGreaterThanNeighbourCount", productivityGreaterThanNeighbourCount);
 		
 		return super.writeToNBT(nbt);
+	}
+	
+	public void spawnEntity(Entity entity) {
+		// TODO
 	}
 	
 	/**
@@ -268,7 +300,7 @@ public class TileEntityChunkData extends TileEntity {
 	
 	private void setChunkAsCastle() {
 		if (world.rand.nextInt(1) == 0) {
-			TileEntityChunkCastle castle = new TileEntityChunkCastle(world, productivity, chunkX, chunkZ);
+			TileEntityChunkCastle castle = new TileEntityChunkCastle(world, productivity, chunkX, chunkZ, heigthMap);
 			Chunk chunk = world.getChunkFromChunkCoords(chunkX, chunkZ);
 			chunk.addTileEntity(getChunkDataPos(chunkX, chunkZ), castle);
 			world.addTileEntity(castle);
@@ -279,7 +311,7 @@ public class TileEntityChunkData extends TileEntity {
 	
 	public static TileEntityChunkData getChunkData(World world, int chunkX, int chunkZ) {
 		if (world.isChunkGeneratedAt(chunkX, chunkZ)) {
-			TileEntity tileEntity = world.getChunkFromChunkCoords(chunkX, chunkZ).getTileEntity(getChunkDataPos(chunkX, chunkZ), EnumCreateEntityType.IMMEDIATE);//.getTileEntity(getChunkDataPos(chunkX, chunkZ));
+			TileEntity tileEntity = world.getChunkFromChunkCoords(chunkX, chunkZ).getTileEntity(getChunkDataPos(chunkX, chunkZ), EnumCreateEntityType.IMMEDIATE);
 			if (tileEntity != null && tileEntity instanceof TileEntityChunkData) {
 				return (TileEntityChunkData)tileEntity;
 			}

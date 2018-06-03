@@ -46,12 +46,12 @@ public class CmdCheckResources extends CommandBase {
 	
 	@Override
 	public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
-		try {
-			RegistryHandler.writeResourceData();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		sender.sendMessage(new TextComponentString("num: " + RegistryHandler.resourceDataList[0].size()));
+		//try {
+		//	RegistryHandler.writeResourceData();
+		//} catch (IOException e) {
+		//	e.printStackTrace();
+		//}
+		//sender.sendMessage(new TextComponentString("num: " + RegistryHandler.resourceDataList[0].size()));
 		/*BlockPos pos = sender.getPosition();
 		TileEntityChunkData chunkData = TileEntityChunkData.getChunkData(sender.getEntityWorld(), pos.getX() >> 4, pos.getZ() >> 4);
 		

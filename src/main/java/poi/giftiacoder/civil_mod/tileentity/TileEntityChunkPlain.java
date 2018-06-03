@@ -8,7 +8,17 @@ import poi.giftiacoder.civil_mod.world.civil.DimensionCivil;
 public class TileEntityChunkPlain extends TileEntityChunkData {
 	
 	public static enum BuildingType {
-		WASTELAND, SUBURBAN, CASTLE;
+		WASTELAND(false), SUBURBAN(false), CASTLE(true);
+		
+		private boolean isBuilding;
+		
+		private BuildingType(boolean isBuilding) {
+			this.isBuilding = isBuilding;
+		}
+		
+		public boolean isBuilding() {
+			return isBuilding;
+		}
 	};
 	
 	public BuildingType buildingType;
@@ -16,8 +26,8 @@ public class TileEntityChunkPlain extends TileEntityChunkData {
 	
 	public TileEntityChunkPlain() {}
 	
-	public TileEntityChunkPlain(World world, BuildingType buildingType, float productivity, int chunkX, int chunkZ) {
-		super(world, ChunkType.PLAIN, productivity, chunkX, chunkZ);
+	public TileEntityChunkPlain(World world, BuildingType buildingType, float productivity, int chunkX, int chunkZ, int[][] heigthMap) {
+		super(world, ChunkType.PLAIN, productivity, chunkX, chunkZ, heigthMap);
 		this.buildingType = buildingType;
 	}
 	

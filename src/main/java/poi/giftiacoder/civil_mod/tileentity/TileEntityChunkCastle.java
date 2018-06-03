@@ -4,7 +4,6 @@ import java.util.Iterator;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockColored;
-import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.EnumDyeColor;
@@ -12,6 +11,9 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ITickable;
 import net.minecraft.world.World;
 import poi.giftiacoder.civil_mod.tileentity.util.ChunkSet;
+import poi.giftiacoder.civil_mod.tileentity.util.DemonPollutionWanderer;
+import poi.giftiacoder.civil_mod.tileentity.util.IMessageWanderer;
+import poi.giftiacoder.civil_mod.tileentity.util.TravellerGenWanderer;
 
 public class TileEntityChunkCastle extends TileEntityChunkPlain implements ITickable {
 
@@ -24,11 +26,14 @@ public class TileEntityChunkCastle extends TileEntityChunkPlain implements ITick
 	public float sumProductivity = 0;
 	
 	public IBlockState campColorBlock;
+
+	private IMessageWanderer demonWanderer;
+	private IMessageWanderer travellerWanderer;
 	
 	public TileEntityChunkCastle() {}
 	
-	public TileEntityChunkCastle(World world, float productivity, int chunkX, int chunkZ) {
-		super(world, BuildingType.CASTLE, productivity, chunkX, chunkZ);
+	public TileEntityChunkCastle(World world, float productivity, int chunkX, int chunkZ, int[][] heightMap) {
+		super(world, BuildingType.CASTLE, productivity, chunkX, chunkZ, heightMap);
 		campColorBlock = Blocks.WOOL.getDefaultState().withProperty(BlockColored.COLOR, 
 				EnumDyeColor.values()[world.rand.nextInt(EnumDyeColor.values().length)]);
 		
@@ -39,19 +44,26 @@ public class TileEntityChunkCastle extends TileEntityChunkPlain implements ITick
 		expandSet.add(chunkX, chunkZ - 1);
 		expandSet.add(chunkX + 1, chunkZ);
 		expandSet.add(chunkX - 1, chunkZ);
+		
+		demonWanderer = new DemonPollutionWanderer(this);
+		travellerWanderer = new TravellerGenWanderer(this);
 	}
 	
 	protected void updateCastleAI() {
-		for (Long c : territorySet) {
-			TileEntityChunkData chunkData = ChunkSet.getChunkData(world, c);
-			if (chunkData != null) {
-				sumProductivity += chunkData.productivity / 4.0F;
-			}
-		}
-		tryExpand();
+		//for (Long c : territorySet) {
+		//	TileEntityChunkData chunkData = ChunkSet.getChunkData(world, c);
+		//	if (chunkData != null) {
+		//		sumProductivity += chunkData.productivity / 4.0F;
+		//	}
+		//}
+		//demonWanderer.wander();
+		//travellerWanderer.wander();
+		
+		//TileEntityChunkPlain expandChunk = tryExpand();
+		// TODO expand chunk
 	}
-	
-	private void tryExpand() {
+
+	private TileEntityChunkPlain tryExpand() {
 		//float maxProductivity = 0;
 		float maxWeight = 0;
 		TileEntityChunkPlain chunkPlainToExpand = null;
@@ -91,6 +103,7 @@ public class TileEntityChunkCastle extends TileEntityChunkPlain implements ITick
 			
 			//System.out.printf("(%d, %d), (%d, %d)\n", chunkX, chunkZ, chunkPlainToExpand.chunkX, chunkPlainToExpand.chunkZ);
 		}
+		return chunkPlainToExpand;
 	}
 	
 	private float getExpandWeight(TileEntityChunkPlain data) {
@@ -138,6 +151,11 @@ public class TileEntityChunkCastle extends TileEntityChunkPlain implements ITick
 		}
 		territorySet.readFromNBT("territorySet", nbt);
 		expandSet.readFromNBT("expandSet", nbt);
+		
+		demonWanderer = new DemonPollutionWanderer(this);
+		demonWanderer.readFromNBT(nbt);
+		travellerWanderer = new TravellerGenWanderer(this);
+		travellerWanderer.readFromNBT(nbt);
 	}
 	
 	@Override
@@ -147,6 +165,10 @@ public class TileEntityChunkCastle extends TileEntityChunkPlain implements ITick
 		nbt.setInteger("campColorBlock", Block.getStateId(campColorBlock));
 		territorySet.writeToNBT("territorySet", nbt);
 		expandSet.writeToNBT("expandSet", nbt);
+		
+		demonWanderer.writeToNBT(nbt);
+		travellerWanderer.writeToNBT(nbt);
+		
 		return super.writeToNBT(nbt);
 	}
 }

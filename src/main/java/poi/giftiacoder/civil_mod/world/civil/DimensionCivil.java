@@ -7,6 +7,7 @@ import net.minecraft.world.gen.IChunkGenerator;
 import poi.giftiacoder.civil_mod.ModBiomes;
 import poi.giftiacoder.civil_mod.R;
 import poi.giftiacoder.civil_mod.world.ChunkGeneratorCivil;
+import poi.giftiacoder.civil_mod.world.ChunkGeneratorTest;
 
 public class DimensionCivil extends WorldProvider {
 
@@ -26,6 +27,7 @@ public class DimensionCivil extends WorldProvider {
 	@Override
 	public IChunkGenerator createChunkGenerator() {
 		return new ChunkGeneratorCivil(this.world);
+		//return new ChunkGeneratorTest(world);
 	}
 	
 	@Override
@@ -35,7 +37,7 @@ public class DimensionCivil extends WorldProvider {
 	
 	@Override
 	public boolean isSurfaceWorld() {
-		return true;
+		return false;
 	}
 	
 }

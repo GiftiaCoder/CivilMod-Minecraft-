@@ -30,7 +30,7 @@ public class Hashs {
 	 * return the hash code of (x, z) that between 0-Integer.MAX_VALUE
 	 */
 	public int hash(int x, int z) {
-		int n = ((x * 1153) << 11) ^ ((z * 1031) << 23) ^ (x * 23) ^ (z * 31);//x + z * 71;
+		int n = (x << 11) ^ (z << 23) ^ (x * 23) ^ (z * 31);//x + z * 71;
 		return hash(n);
 		//int n = x + z * 71;
 		//n *= 40751;

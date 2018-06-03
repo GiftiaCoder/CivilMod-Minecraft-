@@ -42,7 +42,7 @@ public class RegistryHandler {
 		}
 	}
 	
-	public static class ResourceDataList extends ArrayList<Float> {}
+	/*public static class ResourceDataList extends ArrayList<Float> {}
 	public static ResourceDataList[] resourceDataList = new ResourceDataList[Resources.values().length];
 	static {
 		for (int i = 0; i < resourceDataList.length; ++i) {
@@ -74,6 +74,6 @@ public class RegistryHandler {
 		rt.write("\n");
 		rt.flush();
 		rt.close();
-	}
+	}*/
 	
 }

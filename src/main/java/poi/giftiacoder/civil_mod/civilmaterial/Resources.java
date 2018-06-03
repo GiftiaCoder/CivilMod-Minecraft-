@@ -28,14 +28,14 @@ public enum Resources {
 	VENISON(0.09F, 14.0F, 0.11F, PASTURE), 
 	
 	// material
-	STONE(0.45F, 6.0F, 0.6F), 
+	STONE(0.45F, 6.0F, 0.8F), 
 	IRON_ORE(0.12F, 14.0F, 0.74F), 
 	GOLD_ORE(0.45F, 14.0F, 1.0F, IRON_ORE), 
 	RUBY(0.98F, 16.0F, 1.0F, STONE, IRON_ORE), 
 	DIAMOND(0.72F, 16.0F, 1.0F, STONE, IRON_ORE), 
 	
 	// forest (parent: water)
-	WOOD(1.0F, 8.0F, 1.0F, WATER), 
+	WOOD(1.5F, 8.0F, 1.0F, WATER), 
 	APPLE(0.12F, 8.0F, 1.0F, WOOD), 
 	ORANGE(0.12F, 8.0F, 1.0F, WOOD), 
 	COCOA(0.08F, 12.0F, 0.5F, WOOD);
@@ -55,8 +55,6 @@ public enum Resources {
 		this.parents = parents;
 		
 		this.nbtName = "resource_" + name().toLowerCase();
-		
-		System.out.println(this + ": " + parents.length);
 	}
 	
 	public void setNoise(PerlinNoise noise) {
